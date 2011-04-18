@@ -6,6 +6,15 @@ from math import sin, cos, ceil
 import colorsys
 import pygame
 
+# helper functions for loading files, counting words etc...
+import helper
+
+# pysvg libraries
+from pysvg.structure import *
+from pysvg.core import *
+from pysvg.text import *
+
+#
 TAG_PADDING = 5
 STEP_SIZE = 1 #relative to base stepsize of each spiral function
 RADIUS = 1
@@ -57,7 +66,7 @@ class Tag(Sprite):
         self.mask = self.mask.convolve(CONVMASK, None, (TAG_PADDING, TAG_PADDING))
 
 def defscale(count, mincount, maxcount, minsize, maxsize):
-    return minsize + (maxsize - minsize) * (count / (maxcount - mincount))**0.75
+    return minsize + (maxsize - minsize) * (count / (maxcount - mincount))#**0.75
 
 def make_tags(wordcounts, minsize=9, maxsize=25, colors=None, scalef=defscale):
     """
@@ -244,3 +253,29 @@ def create_html_data(tags, size=(600, 400), fontname='fonts/Arial.ttf', fontzoom
                }
         data['links'].append(tag)
     return data
+
+def create_svg_image(tags, filename, size=(800, 600), background=(255, 255, 255), vertical=True, crop=True, fontname='fonts/Arial.ttf', fontzoom=2, rectangular=False):
+    """
+    Create data structures to be used for SVG tag clouds.
+    """
+    image_surface = Surface(size, 0, 32)
+    image_surface.fill((255, 255, 255))
+    tag_store = _draw_cloud(tags, image_surface, False, fontname=fontname, fontzoom=fontzoom, rectangular=rectangular)
+
+    svg_out = svg(0,0,width='100%',height='100%')
+
+    #tag_store = sorted(tag_store, key=lambda tag: tag.tag['size'])
+    #tag_store.reverse()
+    for stag in tag_store:
+        group = g()
+        xx = stag.rect.left - stag.fontoffset[0]
+        yy = stag.rect.top - stag.fontoffset[1]
+
+        t = text(stag.tag['tag'], x=xx, y=yy)
+        t.set_font_family('Arial')
+        t.set_font_size(str(stag.tag['size']))
+
+        group.addElement(t)
+    	svg_out.addElement(group)
+
+    svg_out.save(filename)

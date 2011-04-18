@@ -6,6 +6,7 @@ from optparse import OptionParser
 from pytagcloud import create_tag_image, create_html_data, make_tags
 
 import pytagcloud
+import pytagcloud.helper
 
 class FontError(Exception):
     pass
@@ -21,8 +22,6 @@ def test_create_tag_image(self):
     print "Duration: %d sec" % (time.time() - start)
 
 def ParseOptions(options, args):
-    print options, args
-    
     font = '/usr/share/fonts/truetype/freefont/FreeSans.ttf'
     
     if options.font is not '':
@@ -33,17 +32,19 @@ def ParseOptions(options, args):
 
     # Read file
     if options.stdin: # read from std input
-        print 'Reading from stdin'
+        if options.verbose:
+	    print 'Reading from stdin'
         input_chars = sys.stdin.read()
     elif options.filename != '':
-        print 'Reading from %s'%(options.filename)
+        if options.verbose:
+       	    print 'Reading from %s'%(options.filename)
         input_chars = open(options.filename,'r').read()
     else:
         print 'What? No input? Wierdo.'
         return
 
     # Calculate word distribution
-    d = pytagcloud.helper.word_dist_s(input_chars,options.boring)
+    d = pytagcloud.helper.word_dist_s(input_chars,options.boring,verbose=options.verbose)
    
     options.numwords = eval(options.numwords)
     top = d[0:options.numwords] 
@@ -77,6 +78,7 @@ if __name__ == "__main__":
     parser.add_option('-o', '--outfile', dest='outfile', default='output.png', help='Output file')
     parser.add_option('-n', '--numwords', dest='numwords', default='100', help='Number of words to include in cloud.')
     parser.add_option('-b', '--boring', dest='boring', default='', help='File with a list of boring words, 1 word per line.')
+    parser.add_option('-v', '--verbose', dest='verbose', action='store_true', default=False, help='Print extra words which might contain useful stuff.')
     parser.add_option('--font', dest='font', default='', help='Font to use. Font must be absolute reference, in local dir or font dir');
 
     (options, args) = parser.parse_args()

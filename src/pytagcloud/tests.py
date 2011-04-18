@@ -75,5 +75,11 @@ class Test(unittest.TestCase):
         for link in data['links']:
             print '<a class="tag %(cls)s" href="#" style="top: %(top)dpx; left: %(left)dpx; font-size: %(size)dpx;">%(tag)s</a>' % link
 
+    def test_create_svg_image(self):
+        """
+        SVG example
+        """
+        create_svg_image(self.tags, size=(600, 400), fontname='fonts/Arial.ttf', fontzoom=3)
+
 if __name__ == "__main__":
     unittest.main()
