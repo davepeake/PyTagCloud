@@ -22,7 +22,8 @@ def test_create_tag_image(self):
     print "Duration: %d sec" % (time.time() - start)
 
 def ParseOptions(options, args):
-    font = '/usr/share/fonts/truetype/freefont/FreeSans.ttf'
+    #font = '/usr/share/fonts/truetype/freefont/FreeSans.ttf'
+    font = 'Cuprum'
     
     if options.font is not '':
         if os.path.exists(options.font): # check for aboslute reference
@@ -53,10 +54,12 @@ def ParseOptions(options, args):
     for i in range(len(top)):
         buff[top[i][0]] = top[i][1]
 
+    buff = zip(buff.keys(), buff.values()) # make_tags now needs a list of tuples 
+
     mtags = make_tags(buff)
 
     #create_tag_image(mtags, options.outfile, size=(1280, 800), background=(255, 255, 255, 255), vertical=True, crop=False, fontname='/home/djpeake/Programming/svn/PyTagCloud/src/pytagcloud/fonts/Dave.ttf', fontzoom=5)
-    create_tag_image(mtags, options.outfile, size=(1280, 800), background=(255, 255, 255, 255), vertical=True, crop=False, fontname=font, fontzoom=5)
+    create_tag_image(mtags, options.outfile, size=(1280, 800), background=(255, 255, 255, 255), crop=False, fontname=font, fontzoom=5)
 
 if __name__ == "__main__":
     '''
@@ -79,7 +82,7 @@ if __name__ == "__main__":
     parser.add_option('-n', '--numwords', dest='numwords', default='100', help='Number of words to include in cloud.')
     parser.add_option('-b', '--boring', dest='boring', default='', help='File with a list of boring words, 1 word per line.')
     parser.add_option('-v', '--verbose', dest='verbose', action='store_true', default=False, help='Print extra words which might contain useful stuff.')
-    parser.add_option('--font', dest='font', default='', help='Font to use. Font must be absolute reference, in local dir or font dir');
+    parser.add_option('--font', dest='font', default='', help='Font to use. Font must be absolute reference, in local dir or font dir *BROKEN*');
 
     (options, args) = parser.parse_args()
 
