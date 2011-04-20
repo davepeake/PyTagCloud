@@ -13,16 +13,9 @@ def vprint(msg, verbose):
     
 def remove_boring_words(words,wordlist=''):
     '''
-    eventually this'll do something smarter
-    at the moment it just removes all words with 3 or less letters
-
     wordlist = file with a bunch of boring words
     '''
     k = words.keys()
-
-    for i in range(len(k)):
-        if len(k[i]) <= 3:
-            words.pop(k[i])
 
     if wordlist is not '':
         fin = open(wordlist,'r')
@@ -31,6 +24,22 @@ def remove_boring_words(words,wordlist=''):
         for i in boring_words:
             if i in k:
                 words.pop(i)
+
+    return words
+
+def remove_short_words(words, minlength=3):
+    '''
+    eventually this'll do something smarter
+    at the moment it just removes all words with 3 or less letters
+
+    '''
+    if minlength == 0:
+        return words
+
+    k = words.keys()
+    for i in range(len(k)):
+        if len(k[i]) <= minlength:
+            words.pop(k[i])
 
     return words
 
@@ -64,7 +73,7 @@ def sort_dict(d,verbose=False):
 
     return sorted(d.iteritems(), key=operator.itemgetter(1),reverse=True)
 
-def word_dist_s(s, boring_words='',verbose=False):
+def word_dist_s(s, boring_words='', min_word_length=4, verbose=False):
 
     vprint('Lowering case and removing punctuation',verbose)
     s = string_conditioning(s)
@@ -92,7 +101,12 @@ def word_dist_s(s, boring_words='',verbose=False):
 
     vprint('number of unique words:%d'%len(words.keys()), verbose)
 
-    words = remove_boring_words(words, boring_words)
+    if boring_words is not '':
+        vprint('Removing boring words',verbose)
+        words = remove_boring_words(words, boring_words)
+
+    vprint('Removing words over length %d'% min_word_length,verbose)
+    words = remove_short_words(words, min_word_length)
 
     return sort_dict(words,verbose)
 
