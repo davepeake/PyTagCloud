@@ -28,17 +28,12 @@ def remove_boring_words(words,wordlist=''):
     return words
 
 def remove_short_words(words, minlength=3):
-    '''
-    eventually this'll do something smarter
-    at the moment it just removes all words with 3 or less letters
-
-    '''
     if minlength == 0:
         return words
 
     k = words.keys()
     for i in range(len(k)):
-        if len(k[i]) <= minlength:
+        if len(k[i]) < minlength:
             words.pop(k[i])
 
     return words
@@ -105,7 +100,7 @@ def word_dist_s(s, boring_words='', min_word_length=4, verbose=False):
         vprint('Removing boring words',verbose)
         words = remove_boring_words(words, boring_words)
 
-    vprint('Removing words over length %d'% min_word_length,verbose)
+    vprint('Removing words under length %d'% min_word_length,verbose)
     words = remove_short_words(words, min_word_length)
 
     return sort_dict(words,verbose)
