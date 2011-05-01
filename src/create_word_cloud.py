@@ -58,10 +58,10 @@ def ParseOptions(options, args):
     # Calculate word distribution
     d = pytagcloud.helper.word_dist_s(input_chars,
                                       boring_words = options.boring, 
-                                      min_word_length = eval(options.length), 
+                                      min_word_length = options.length, 
                                       verbose=options.verbose)
    
-    options.numwords = eval(options.numwords)
+    #options.numwords = eval(options.numwords)
 
     if options.numwords < len(d):
         top = d[0:options.numwords] 
@@ -78,12 +78,12 @@ def ParseOptions(options, args):
 
     create_tag_image(mtags, 
                     options.outfile, 
-                    size=(eval(options.width), eval(options.height)), 
+                    size=options.size, 
                     background=(255, 255, 255, 255), 
                     crop=options.crop, 
                     fontname=options.font,
                     layout=layout,
-                    fontzoom=eval(options.fontzoom))
+                    fontzoom=options.fontzoom)
 
 if __name__ == "__main__":
     '''
@@ -116,9 +116,9 @@ if __name__ == "__main__":
 
     # string butchering
     string_options = OptionGroup(parser, 'String Manipulation Options')
-    string_options.add_option('-n', '--numwords', dest='numwords', default='100', help='Number of words to include in cloud.')
+    string_options.add_option('-n', '--numwords', dest='numwords', default=100, type='int', help='Number of words to include in cloud.')
     string_options.add_option('-b', '--boring', dest='boring', default='', help='File with a list of boring words, 1 word per line.',metavar='FILE')
-    string_options.add_option('-w', '--minwordlength', dest='length', default=4, help='Minimum length of words in cloud.')
+    string_options.add_option('-w', '--minwordlength', dest='length', default=4, type='int', help='Minimum length of words in cloud.')
     parser.add_option_group(string_options)
 
     # layout options
@@ -126,9 +126,8 @@ if __name__ == "__main__":
     layout_options.add_option('--font', dest='font', default=pytagcloud.DEFAULT_FONT, help='Font to use. Must be one of these fonts: %s'%", ".join([f['name'] for f in pytagcloud.FONT_CACHE]))
     layout_options.add_option('--crop', dest='crop', default=False, action='store_true', help='Crop the final image')
     layout_options.add_option('--layout',dest='layout',default='Mixed',help='Word orientation: Mixed, Vertical, Horizontal, MostlyVertical or MostlyHorizontal')
-    layout_options.add_option('-x', dest='width', default=1280, help='Width of image')
-    layout_options.add_option('-y', dest='height', default=800, help='Height of image')
-    layout_options.add_option('-z', '--zoom', dest='fontzoom', default=3, help='Font zoom (effect of tag count on the font size)')
+    layout_options.add_option('-s', '--size', dest='size', default=(1280,800), type='int', nargs=2, help='Size of image')
+    layout_options.add_option('-z', '--zoom', dest='fontzoom', default=3, type='int', help='Font zoom (effect of tag count on the font size)')
     # colour options
     # background colour/alpha
     parser.add_option_group(layout_options)
