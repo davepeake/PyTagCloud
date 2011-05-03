@@ -10,6 +10,9 @@ import os
 import pygame
 import simplejson
 
+# colors
+from colors import COLOR_SCHEMES
+
 # helper functions for loading files, counting words etc...
 import helper
 
@@ -60,7 +63,9 @@ class Tag(Sprite):
         
         font_spec = load_font(fontname)
         
-        fonter = font.Font(os.path.join(FONT_DIR, font_spec['ttf']), int(tag['size'] * fontzoom)).render(tag['tag'], True, tag['color'])
+        #fonter = font.Font(os.path.join(FONT_DIR, font_spec['ttf']), int(tag['size'] * fontzoom)).render(tag['tag'], True, tag['color'])
+        # changing to allow for arbitrary local fonts
+        fonter = font.Font(font_spec['ttf'], int(tag['size'] * fontzoom)).render(tag['tag'], True, tag['color'])
         self.tag['size'] *= fontzoom
         fonter = transform.rotate(fonter, rotation)
         frect = fonter.get_bounding_rect()
@@ -90,7 +95,15 @@ class Tag(Sprite):
 def load_font(name):
     for font in FONT_CACHE:
         if font['name'] == name:
+            # needed to allow for arbitrary fonts
+            buff = os.path.join(FONT_DIR, font['ttf'])
+            font['ttf'] = buff                
             return font
+
+    if os.path.exists(name):
+        return {'name': name, 'ttf':name, 'web':''}
+
+
     raise AttributeError('Invalid font name. Should be one of %s' % ", ".join([f['name'] for f in FONT_CACHE]))
 
 def defscale(count, mincount, maxcount, minsize, maxsize):

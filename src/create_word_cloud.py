@@ -5,8 +5,13 @@ import os, sys
 from optparse import OptionParser, OptionGroup
 from pytagcloud import create_tag_image, create_html_data, make_tags
 
+from pytagcloud.colors import COLOR_SCHEMES
+
 import pytagcloud
 import pytagcloud.helper
+
+# globals
+DEFAULT_COLOR = COLOR_SCHEMES.keys()[0]
 
 class FontError(Exception):
     pass
@@ -14,7 +19,8 @@ class FontError(Exception):
 def ParseOptions(options, args):
     # Check font 
     if not options.font in [pytagcloud.FONT_CACHE[i]['name'] for i in range(len(pytagcloud.FONT_CACHE))]:
-        raise(FontError('Font %s not in cache.'%(options.font)))
+        if not os.path.exists(options.font):
+            raise(FontError('Font %s not found.'%(options.font)))
     
     '''
     if options.font is not '':                
@@ -41,7 +47,20 @@ def ParseOptions(options, args):
         layout = pytagcloud.LAYOUT_MOST_VERTICAL
     else:
         print 'Unknown layout option %s'%options.layout
-     
+    
+    # Load palette
+    if options.custom:
+        fin = open(options.custom,'r')
+        buff = fin.readlines()
+
+        palette = []
+        for line in buff:            
+            palette.append([ int(eval(i)) for i in line.split()])
+
+        palette = tuple(palette)
+    else:
+        palette = COLOR_SCHEMES[options.colours]
+
     # Read file
     if options.stdin: # read from std input
         if options.verbose:
@@ -74,12 +93,12 @@ def ParseOptions(options, args):
 
     buff = zip(buff.keys(), buff.values()) # make_tags now needs a list of tuples 
 
-    mtags = make_tags(buff)
+    mtags = make_tags(buff,colors=palette)
 
     create_tag_image(mtags, 
                     options.outfile, 
                     size=options.size, 
-                    background=(255, 255, 255, 255), 
+                    background=options.background, 
                     crop=options.crop, 
                     fontname=options.font,
                     layout=layout,
@@ -128,8 +147,10 @@ if __name__ == "__main__":
     layout_options.add_option('--layout',dest='layout',default='Mixed',help='Word orientation: Mixed, Vertical, Horizontal, MostlyVertical or MostlyHorizontal')
     layout_options.add_option('-s', '--size', dest='size', default=(1280,800), type='int', nargs=2, help='Size of image')
     layout_options.add_option('-z', '--zoom', dest='fontzoom', default=3, type='int', help='Font zoom (effect of tag count on the font size)')
-    # colour options
-    # background colour/alpha
+    layout_options.add_option('--bg', dest='background', nargs=4, default=(255,255,255,255), type='int', help='4 integers: R G B A, each between 0-255')
+    layout_options.add_option('-c','--colours', dest='colours', help ='Use a built in colour palette: Must be one of these palettes: %s'%", ".join(COLOR_SCHEMES.keys()))
+    layout_options.add_option('-k','--kustom', dest='custom', default=None, metavar='FILE', help='Use an external colour file 3 integers per line (RGB), one line per colour.')
+
     parser.add_option_group(layout_options)
      
     (options, args) = parser.parse_args()
