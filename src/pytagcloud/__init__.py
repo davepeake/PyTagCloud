@@ -9,6 +9,7 @@ import colorsys
 import os
 import pygame
 import simplejson
+import random
 
 # colors
 from colors import COLOR_SCHEMES
@@ -219,7 +220,8 @@ def _draw_cloud(
         fontname=DEFAULT_FONT, 
         palette=DEFAULT_PALETTE, 
         fontzoom=5, 
-        rectangular=False):
+        rectangular=False,
+        order=True):
     #Sort the tags by size and word length
     tag_list.sort(key=lambda tag: len(tag['tag']))
     tag_list.sort(key=lambda tag: tag['size'])
@@ -232,6 +234,10 @@ def _draw_cloud(
 
     sizeRect = surface.get_rect()
     tag_store = Group()
+
+    if not order:
+	random.shuffle(tag_list)   
+
     for tag in tag_list:
         rot = 0
         flip = False
@@ -277,13 +283,14 @@ def create_tag_image(
         fontname=DEFAULT_FONT,
         palette=DEFAULT_PALETTE, 
         fontzoom=2, 
-        rectangular=False):
+        rectangular=False,
+        order=True):
     """
     Create a png tag cloud image
     """
     image_surface = Surface(size, SRCALPHA, 32)
     image_surface.fill(background)
-    tag_store = _draw_cloud(tags, image_surface, layout, fontname=fontname, palette=palette, fontzoom=fontzoom, rectangular=rectangular)
+    tag_store = _draw_cloud(tags, image_surface, layout, fontname=fontname, palette=palette, fontzoom=fontzoom, rectangular=rectangular,order=order)
 
     if crop:
         boundingRect = _get_group_bounding(tag_store, size)
@@ -349,7 +356,7 @@ def create_html_data(tags, size=(600, 400), fontname=DEFAULT_FONT, fontzoom=2, r
     html_text = html_template.substitute(context)
     return data, html_text
 
-def create_svg_image(tags, filename, size=(800, 600), background=(255, 255, 255), vertical=True, crop=True, fontname='fonts/Arial.ttf', fontzoom=2, rectangular=False):
+def create_svg_image(tags, filename, size=(800, 600), background=(255, 255, 255), vertical=True, crop=True, fontname='Arial', fontzoom=2, rectangular=False):
     """
     Create data structures to be used for SVG tag clouds.
     """
@@ -369,6 +376,10 @@ def create_svg_image(tags, filename, size=(800, 600), background=(255, 255, 255)
         t = text(stag.tag['tag'], x=xx, y=yy)
         t.set_font_family('Arial')
         t.set_font_size(str(stag.tag['size']))
+        t.set_font_stretch('normal')
+        t.set_font_style('normal')
+        t.set_font_variant('normal')
+        t.set_font_weight('normal')
 
         group.addElement(t)
     	svg_out.addElement(group)

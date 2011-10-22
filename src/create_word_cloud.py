@@ -3,7 +3,7 @@
 # -*- coding: utf-8 -*-
 import os, sys
 from optparse import OptionParser, OptionGroup
-from pytagcloud import create_tag_image, create_html_data, make_tags
+from pytagcloud import create_tag_image, create_svg_image, create_html_data, make_tags
 
 from pytagcloud.colors import COLOR_SCHEMES
 
@@ -95,14 +95,19 @@ def ParseOptions(options, args):
 
     mtags = make_tags(buff,colors=palette)
 
-    create_tag_image(mtags, 
-                    options.outfile, 
-                    size=options.size, 
-                    background=options.background, 
-                    crop=options.crop, 
-                    fontname=options.font,
-                    layout=layout,
-                    fontzoom=options.fontzoom)
+    if not options.svg:
+        create_tag_image(mtags, 
+                        options.outfile, 
+                        size=options.size, 
+                        background=options.background, 
+                        crop=options.crop, 
+                        fontname=options.font,
+                        layout=layout,
+                        fontzoom=options.fontzoom,
+                        order=options.order)
+    else:
+        create_svg_image(mtags,
+                        options.outfile)
 
 if __name__ == "__main__":
     '''
@@ -112,9 +117,6 @@ if __name__ == "__main__":
     font file
     background colour
     file type (png, jpg, svg)
-    orientation (vertical, horizontal)
-    crop (true false)    
-    imagesize
     fontsize    
     '''
 
@@ -130,7 +132,7 @@ if __name__ == "__main__":
     # output options
     output_options = OptionGroup(parser, 'Output Options')    
     output_options.add_option('-o', '--outfile', dest='outfile', default='output.png', help='Output file.',metavar='FILE')
-    # svg/html/png option
+    output_options.add_option('--svg', dest='svg', action='store_true', help='Output as svg (BROKEN)', default=False) 
     parser.add_option_group(output_options)
 
     # string butchering
@@ -148,8 +150,9 @@ if __name__ == "__main__":
     layout_options.add_option('-s', '--size', dest='size', default=(1280,800), type='int', nargs=2, help='Size of image')
     layout_options.add_option('-z', '--zoom', dest='fontzoom', default=3, type='int', help='Font zoom (effect of tag count on the font size)')
     layout_options.add_option('--bg', dest='background', nargs=4, default=(255,255,255,255), type='int', help='4 integers: R G B A, each between 0-255')
-    layout_options.add_option('-c','--colours', dest='colours', help ='Use a built in colour palette: Must be one of these palettes: %s'%", ".join(COLOR_SCHEMES.keys()))
+    layout_options.add_option('-c','--colours', dest='colours', help ='Use a built in colour palette: Must be one of these palettes: %s'%", ".join(COLOR_SCHEMES.keys()), default=COLOR_SCHEMES.keys()[0])
     layout_options.add_option('-k','--kustom', dest='custom', default=None, metavar='FILE', help='Use an external colour file 3 integers per line (RGB), one line per colour.')
+    layout_options.add_option('--order', dest='order', default=False, action='store_true', help='Order the words by occurrence before placing in the cloud.')
 
     parser.add_option_group(layout_options)
      

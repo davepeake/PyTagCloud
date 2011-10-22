@@ -1,5 +1,10 @@
 [
 	{
+		"name": "Arial",
+		"ttf": "Arial.ttf",
+		"web": "http://fonts.googleapis.com/css?family=Nobile"
+	},
+	{
 		"name": "Nobile",
 		"ttf": "nobile.ttf",
 		"web": "http://fonts.googleapis.com/css?family=Nobile"
